@@ -3,6 +3,9 @@ import cors from "cors";
 import mongoose from "mongoose";
 import { studentRouter } from "./routes/student.js";
 import { teacherRouter } from "./routes/teacher.js";
+import { subjectRouter } from "./routes/subject.js";
+import { questionRouter } from "./routes/question.js";
+import { answerRouter } from "./routes/answer.js";
 // import { examRouter } from "./routes/exam.js";
 
 const app = express();
@@ -12,9 +15,12 @@ app.use(cors());
 
 app.use("/students", studentRouter);
 app.use("/teachers", teacherRouter);
-// app.use("/exams", examRouter);
+app.use("/subjects", subjectRouter);
+app.use("/questions", questionRouter);
+app.use("/answers", answerRouter); 
+// app.use("/exams", examRouter); 
 
-app.get("/", (req, res) => {
+app.get("/", (req, res) => { 
   res.send("Home page"); 
 })  
 

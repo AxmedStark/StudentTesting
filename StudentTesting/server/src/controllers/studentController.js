@@ -121,4 +121,3 @@ const generateToken = (studentId) => {
   console.log(jwt.sign({ id: studentId }, "secret"));
   return jwt.sign({ id: studentId }, "secret");
 };
- 

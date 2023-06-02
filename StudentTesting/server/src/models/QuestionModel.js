@@ -1,22 +1,22 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const questionSchema = new mongoose.Schema({
-  examId: {
-    type: mongoose.Schema.Types.ObjectId,
+  subjectId: {
+    type: Schema.Types.ObjectId,
+    ref: "Subject",
     required: true,
   },
-  question: {
+  title: {
     type: String,
     required: true,
   },
-  options: {
-    type: [String],
-    required: true,
-  },
-  correctOption: {
-    type: Number,
-    required: true,
-  },
+  difficulty: {
+    type: String,
+    required: true, 
+  }
+},
+{
+  collection: "questions"
 });
 
 const QuestionModel = mongoose.model("Question", questionSchema);
