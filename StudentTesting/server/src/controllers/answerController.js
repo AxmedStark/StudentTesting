@@ -113,29 +113,28 @@ export const getCorrectAnswerFromArray = async (req, res) => {
       return res.status(400).json({ message: "Invalid answers format. Expected an array." });
     }
 
-    const checkedAnswers = answers.map(answer => {
-      const asd = await AnswerModel.findById(
-        answer._id
-      );
-      return asd;
+    const checkedAnswers = answers.map( async answer => {
+      let arr = []
+      await AnswerModel.findById(answer._id).then(res => arr.push(res));
+      return arr;
     })
 
-    // Filter the answers based on the questionId
-    //const filteredAnswers = answers.filter((answer) => answer._id === questionId);
 
-    // if (filteredAnswers.length === 0) {
-    //   return res.status(404).json({ message: "Answers not found for the given question ID" });
-    // }
+    let totalScore = 0
+    Promise.all(checkedAnswers)
+      .then((result) => {
+        result.forEach((answer) => {
+          if (answer[0].isCorrect) totalScore++;
+        });
 
-    // // Find the correct answer from the filtered answers
-    // const correctAnswer = filteredAnswers.find((answer) => answer.isCorrect);
+        // Return the correct answer
+        res.json({ checkedAnswers: result, totalScore });
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred' });
+      });
  
-    // if (!correctAnswer) {
-    //   return res.status(404).json({ message: "Correct answer not found for the given question ID" });
-    // }
-
-    // Return the correct answer
-    res.json({ checkedAnswers });
   } catch (error) {
     console.error("Error finding correct answer:", error);
     res.status(500).json({ message: "Internal server error" });
