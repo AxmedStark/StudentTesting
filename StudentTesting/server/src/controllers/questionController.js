@@ -21,8 +21,28 @@ export const getQuestion = async (req, res) => {
     const questionId = req.params.questionId;
 
     if (questionId === "random") {
-      // Get 25 random questions
-      const questions = await QuestionModel.aggregate().sample(25);
+      // Get 25 random questions with answers (excluding the isCorrect field)
+      const questions = await QuestionModel.aggregate()
+        .sample(25)
+        .lookup({
+          from: "answers",
+          let: { questionId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$questionId", "$$questionId"] },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                questionId: 1,
+                title: 1,
+              },
+            },
+          ],
+          as: "answers",
+        });
       return res.json({ questions });
     }
 
@@ -30,8 +50,11 @@ export const getQuestion = async (req, res) => {
       return res.status(400).json({ message: "Invalid question ID" });
     }
 
-    // Get the question by ID
-    const question = await Question.findById(questionId);
+    // Get the question by ID with answers (excluding the isCorrect field)
+    const question = await QuestionModel.findById(questionId).populate({
+      path: "answers",
+      select: "-isCorrect",
+    });
     
     if (!question) {
       return res.status(404).json({ message: "Question not found" });
@@ -43,6 +66,9 @@ export const getQuestion = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+
 
 
 // Get all questions
