@@ -74,7 +74,7 @@ export const getAllStudents = async (req, res) => {
   }
 };
 
-// Update student profile
+// Update student profile // working
 export const updateStudentProfile = async (req, res) => {
   const studentId = req.params.studentId;
   const updatedProfile = req.body;

@@ -13,7 +13,7 @@ export const createAnswer = async (req, res) => {
       title,
       isCorrect,
     });
-
+ 
     // Save the answer to the database
     await newAnswer.save();
 
@@ -99,6 +99,57 @@ export const deleteAnswer = async (req, res) => {
   }
 };
   
+// Get the correct answer from an array of answers
+export const getCorrectAnswerFromArray = async (req, res) => {
+  try {
+    const questionId = req.params.questionId;
+    const answers = req.body.answers;
+    console.log(req);
+    console.log(answers);
+
+
+    if (!Array.isArray(answers)) {
+      return res.status(400).json({ message: "Invalid answers format. Expected an array." });
+    }
+
+    // Filter the answers based on the questionId
+    const filteredAnswers = answers.filter((answer) => answer._id === questionId);
+
+    if (filteredAnswers.length === 0) {
+      return res.status(404).json({ message: "Answers not found for the given question ID" });
+    }
+
+    // Find the correct answer from the filtered answers
+    const correctAnswer = filteredAnswers.find((answer) => answer.isCorrect);
+ 
+    if (!correctAnswer) {
+      return res.status(404).json({ message: "Correct answer not found for the given question ID" });
+    }
+
+    // Return the correct answer
+    res.json({ correctAnswer });
+  } catch (error) {
+    console.error("Error finding correct answer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+// Calculate total score of correct answers
+export const calculateTotalScore = async (req, res) => {
+  try {
+    const correctAnswers = await AnswerModel.find({ isCorrect: true });
+
+    const totalScore = correctAnswers.length;
+
+    res.json({ totalScore });
+  } catch (error) {
+    console.error("Error calculating total score:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}; 
+
 // Helper function to generate JWT token
 const generateToken = (answerId) => {
   const token = jwt.sign({ id: answerId }, "secret");
